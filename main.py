@@ -41,6 +41,41 @@ def _process_row_types(row: dict) -> dict:
     return processed_row
 
 
+def _generate_average_gdp_report(all_data: list):
+    """
+    Генерирует и выводит отчет о среднем ВВП по странам.
+    """
+    country_gdp_values = defaultdict(list)
+
+    for entry in all_data:
+        country = entry.get("country")
+        gdp = entry.get("gdp")  # Тут уже Float.
+
+        if country and gdp is not None:
+            country_gdp_values[country].append(gdp)
+
+    average_gdps = []
+    for country, gdps in country_gdp_values.items():
+        if gdps:  # Исключаем деление на ноль.
+            avg_gdp = sum(gdps) / len(gdps)
+            average_gdps.append({"country": country, "gdp": round(avg_gdp, 2)})
+
+    sorted_report_data = sorted(
+        average_gdps, key=lambda x: x["gdp"], reverse=True
+    )
+    headers = {"country": "country", "gdp": "gdp"}
+    print(
+        tabulate(
+            sorted_report_data,
+            headers=headers,
+            tablefmt="psql",
+            numalign="right",
+            showindex=range(1, len(sorted_report_data) + 1),
+            floatfmt=".2f",
+        )
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Анализ макроэкономичесских данных и создание отчетов."
@@ -88,53 +123,13 @@ def main():
 
     # Считаем ВВП.
     if args.report == "average-gdp":
-        country_gdp_values = defaultdict(list)
-
-        for entry in all_data:
-            country = entry.get("country")
-            gdp = entry.get("gdp")  # Тут уже Float.
-
-            if country and gdp is not None:
-                country_gdp_values[country].append(gdp)
-
-        average_gdps = []
-        for country, gdps in country_gdp_values.items():
-            if gdps:  # Исключаем деление на ноль.
-                avg_gdp = sum(gdps) / len(gdps)
-                average_gdps.append(
-                    {"country": country, "gdp": round(avg_gdp, 2)}
-                )
-
-        sorted_report_data = sorted(
-            average_gdps, key=lambda x: x["gdp"], reverse=True
-        )
-        headers = {"country": "country", "gdp": "gdp"}
-        print(
-            tabulate(
-                sorted_report_data,
-                headers=headers,
-                tablefmt="psql",
-                numalign="right",
-                showindex=range(1, len(sorted_report_data)+ 1),
-                floatfmt='.2f'
-            )
-        )
-        # print(sorted_report_data)
+        _generate_average_gdp_report(all_data)
 
     elif args.report:
         print(
             f'Ошибка: Неизвестный тип report "{args.report}".', file=sys.stderr
         )
         sys.exit(1)
-
-    # if all_data:
-    #     print("первый ввод данных после преобразования типов:", all_data[0])
-    #     print(f'Тип "gdp" в первом прогоне: {type(all_data[0].get("gdp"))}')
-    # # Тестовый принт
-    # print(f"Файлы для обработки: {args.files}")
-    # print(f"Отчеты для создания: {args.report}")
-
-    # Дописать остальной код для обработки
 
 
 if __name__ == "__main__":
