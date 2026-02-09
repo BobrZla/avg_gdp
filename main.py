@@ -17,6 +17,19 @@ NUMERIC_FIELDS = [
     "population",
 ]
 
+# Решил добавить небольшую проверку чтобы убедиться что пользователь загрузил нужный csv, с нужными headers.
+# Чтобы отключить закомментируйте строки 120-131.
+REQUIRED_HEADERS = [
+    "country",
+    "year",
+    "gdp",
+    "gdp_growth",
+    "inflation",
+    "unemployment",
+    "population",
+    "continent",
+]
+
 
 def _process_row_types(row: dict) -> dict:
     """
@@ -104,6 +117,18 @@ def main():
             with open(file_path, mode="r", encoding="utf-8") as f:
                 # csv.DictReader позволяет читать строки как словари, где ключи - это заголовки
                 reader = csv.DictReader(f)
+                actual_headers = reader.fieldnames
+                expected_headers_set = set(REQUIRED_HEADERS)
+                actual_headers_set = set(actual_headers)
+                if expected_headers_set != actual_headers_set:
+                    print(
+                        f"Ошибка: Шапка файла {file_path} "
+                        f"Отличается от ожидаемой. "
+                        f"Ожидаем: {expected_headers_set}, "
+                        f"Получили: {actual_headers_set}",
+                        file=sys.stderr,
+                    )
+                    sys.exit(1)
                 for row in reader:
                     # Каждая строка - это словарь {'country': 'USA', 'year': 1992}
                     all_data.append(_process_row_types(row))
