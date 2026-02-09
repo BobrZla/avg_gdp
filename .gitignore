@@ -1,0 +1,14 @@
+# Виртуальные окружения
+venv/
+env/
+*.pyc
+__pycache__/
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# Логи и БД
+*.log
+*.sqlite3
