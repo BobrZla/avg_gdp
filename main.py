@@ -108,7 +108,18 @@ def main():
         sorted_report_data = sorted(
             average_gdps, key=lambda x: x["gdp"], reverse=True
         )
-        print(sorted_report_data)  # Для отладки
+        headers = {"country": "country", "gdp": "gdp"}
+        print(
+            tabulate(
+                sorted_report_data,
+                headers=headers,
+                tablefmt="psql",
+                numalign="right",
+                showindex=range(1, len(sorted_report_data)+ 1),
+                floatfmt='.2f'
+            )
+        )
+        # print(sorted_report_data)
 
     elif args.report:
         print(
