@@ -2,6 +2,8 @@
 import argparse
 import csv
 import sys
+from collections import defaultdict
+from tabulate import tabulate
 
 """
 Константа для модуля преобразования,
@@ -84,12 +86,42 @@ def main():
         f"Успешно загруженны {len(all_data)} данных из {len(args.files)} файлов."
     )
 
-    if all_data:
-        print("первый ввод данных после преобразования типов:", all_data[0])
-        print(f'Тип "gdp" в первом прогоне: {type(all_data[0].get("gdp"))}')
-    # Тестовый принт
-    print(f"Файлы для обработки: {args.files}")
-    print(f"Отчеты для создания: {args.report}")
+    # Считаем ВВП.
+    if args.report == "average-gdp":
+        country_gdp_values = defaultdict(list)
+
+        for entry in all_data:
+            country = entry.get("country")
+            gdp = entry.get("gdp")  # Тут уже Float.
+
+            if country and gdp is not None:
+                country_gdp_values[country].append(gdp)
+
+        average_gdps = []
+        for country, gdps in country_gdp_values.items():
+            if gdps:  # Исключаем деление на ноль.
+                avg_gdp = sum(gdps) / len(gdps)
+                average_gdps.append(
+                    {"country": country, "gdp": round(avg_gdp, 2)}
+                )
+
+        sorted_report_data = sorted(
+            average_gdps, key=lambda x: x["gdp"], reverse=True
+        )
+        print(sorted_report_data)  # Для отладки
+
+    elif args.report:
+        print(
+            f'Ошибка: Неизвестный тип report "{args.report}".', file=sys.stderr
+        )
+        sys.exit(1)
+
+    # if all_data:
+    #     print("первый ввод данных после преобразования типов:", all_data[0])
+    #     print(f'Тип "gdp" в первом прогоне: {type(all_data[0].get("gdp"))}')
+    # # Тестовый принт
+    # print(f"Файлы для обработки: {args.files}")
+    # print(f"Отчеты для создания: {args.report}")
 
     # Дописать остальной код для обработки
 
