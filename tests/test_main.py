@@ -114,7 +114,7 @@ def test_main_with_valid_arguments_calls_report_generator(capsys):
     assert "Ошибка" not in captured.err
 
 
-def test_main_missing_files_argument_exist_with_error():
+def test_main_missing_files_argument_exits_with_error(capsys):
     """
     Проверяет, что main() завершится с ошибкой, если отсутствует --files.
     """
@@ -122,11 +122,35 @@ def test_main_missing_files_argument_exist_with_error():
     with patch.object(sys, "argv", test_args):
         with pytest.raises(SystemExit) as excinfo:
             main()
+        captured = capsys.readouterr()
 
+        assert (
+            "the following arguments are required: --files" in captured.err
+            or "Следующие аргументы являются обязательными: --files"
+            in captured.err
+        )
         assert excinfo.value.code != 0
 
 
-def test_main_unknown_report_type_exist_with_errors(capsys):
+def test_main_missing_report_argument_exits_with_error(capsys):
+    """
+    Проверяет, что main() завершится с ошибкой, если отсутствует --report.
+    """
+    test_args = ["main.py", "--files", "average-gdp"]
+    with patch.object(sys, "argv", test_args):
+        with pytest.raises(SystemExit) as excinfo:
+            main()
+        captured = capsys.readouterr()
+
+        assert (
+            "the following arguments are required: --report" in captured.err
+            or "Следующие аргументы являются обязательными: --report"
+            in captured.err
+        )
+        assert excinfo.value.code != 0
+
+
+def test_main_unknown_report_type_exits_with_errors(capsys):
     """
     Проверяет, что main() завершится с ошибкой если тип отчета неизвестен.
     """
@@ -168,12 +192,13 @@ def test_main_non_existent_file_exits_with_errors(capsys):
         captured = capsys.readouterr()
         assert "Ошибка: Файл не найден по пути" in captured.err
 
+
 def test_main_file_read_error_exits_with_error(capsys):
-    '''
+    """
     Проверяет, что main() завершается с ошибкой при возникновении
     непредвиденной ошибки чтения файла.
     Например: файл где-то уже открыт, или нет прав доступа или файл битый.
-    '''
+    """
     test_args = [
         "main.py",
         "--files",
@@ -181,18 +206,21 @@ def test_main_file_read_error_exits_with_error(capsys):
         "--report",
         "average-gdp",
     ]
-    with patch.object(sys, 'argv', test_args):
-        with patch("builtins.open", side_effect=OSError("Simulated read error")):
+    with patch.object(sys, "argv", test_args):
+        with patch(
+            "builtins.open", side_effect=OSError("Simulated read error")
+        ):
             with pytest.raises(SystemExit) as excinfo:
                 main()
             assert excinfo.value.code != 0
             captured = capsys.readouterr()
             assert "Ошибка чтения файла" in captured.err
 
+
 def test_main_missing_required_headers_exits_with_error(capsys):
-    '''
+    """
     Проверяет что будет ошибка если в csv файле нет всех заголовков (headers).
-    '''
+    """
     test_args = [
         "main.py",
         "--files",
@@ -204,14 +232,15 @@ def test_main_missing_required_headers_exits_with_error(capsys):
     mock_csv_content = """country,year,gdp_growth,inflation,unemployment,population,continent
     TestCountry,2023,100.00,1.0,1.0,1,NA
     """
-    with patch.object(sys, 'argv', test_args):
-        with patch('builtins.open', mock_open(read_data=mock_csv_content)):
+    with patch.object(sys, "argv", test_args):
+        with patch("builtins.open", mock_open(read_data=mock_csv_content)):
             with pytest.raises(SystemExit) as excinfo:
                 main()
 
             assert excinfo.value.code != 0
             captured = capsys.readouterr()
-            assert 'Ошибка: Шапка файла' in captured.err
+            assert "Ошибка: Шапка файла" in captured.err
+
 
 def test_generate_average_gdp_report_calculates_and_sorts_correctly(capsys):
     """

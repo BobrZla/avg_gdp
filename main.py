@@ -1,14 +1,11 @@
-# Здесь основной код скрипта
 import argparse
 import csv
 import sys
 from collections import defaultdict
 from tabulate import tabulate
 
-"""
-Константа для модуля преобразования,
-Тут указаны поля которые должны быть числами Float.
-"""
+
+# Поля, значения которых должны быть числами с плавающей точкой (Float).
 NUMERIC_FIELDS = [
     "gdp",
     "gdp_growth",
@@ -60,7 +57,7 @@ def _generate_average_gdp_report(all_data: list):
 
     for entry in all_data:
         country = entry.get("country")
-        gdp = entry.get("gdp")  # Тут уже Float.
+        gdp = entry.get("gdp")
 
         if country and gdp is not None:
             country_gdp_values[country].append(gdp)
@@ -91,15 +88,16 @@ def main():
     parser = argparse.ArgumentParser(
         description="Анализ макроэкономичесских данных и создание отчетов."
     )
-    # Аргумент --files: должен принимать одно или несколько значений (путей к файлам)
     parser.add_argument(
         "--files",
         nargs="+",
         required=True,
-        help="Пути к одному или нескольким CSV-файлам, содержащим экономические данные.",
+        help=(
+            "Пути к одному или нескольким CSV-файлам, "
+            "содержащим экономические данные."
+        ),
     )
 
-    # Аргумент --report: принимает одно строковое значение (название отчета)
     parser.add_argument(
         "--report",
         type=str,
@@ -107,7 +105,7 @@ def main():
         help='Название отчета для создания (например: "average-gdp").',
     )
     args = parser.parse_args()
-    all_data = []  # Тут будем хранить данные из csv файлов.
+    all_data = []
 
     for file_path in args.files:
         try:
@@ -137,7 +135,6 @@ def main():
             print(f"Ошибка чтения файла {file_path}: {e}", file=sys.stderr)
             sys.exit(1)
 
-    # Считаем ВВП.
     if args.report == "average-gdp":
         _generate_average_gdp_report(all_data)
 
