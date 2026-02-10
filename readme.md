@@ -66,6 +66,7 @@ Pytest
 ![Работа скрипта](./screenshots/Work.png)
 ----
 Покрытие тестами
+
 ![Покрытие тестами](./screenshots/pytestCOV.png)
 ----
 
