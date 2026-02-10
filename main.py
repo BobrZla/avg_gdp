@@ -17,8 +17,6 @@ NUMERIC_FIELDS = [
     "population",
 ]
 
-# Решил добавить небольшую проверку чтобы убедиться что пользователь загрузил нужный csv, с нужными headers.
-# Чтобы отключить закомментируйте строки 120-131.
 REQUIRED_HEADERS = [
     "country",
     "year",
@@ -94,7 +92,6 @@ def main():
         description="Анализ макроэкономичесских данных и создание отчетов."
     )
     # Аргумент --files: должен принимать одно или несколько значений (путей к файлам)
-    # nargs='+' означает "один или более" аргументов
     parser.add_argument(
         "--files",
         nargs="+",
@@ -115,7 +112,6 @@ def main():
     for file_path in args.files:
         try:
             with open(file_path, mode="r", encoding="utf-8") as f:
-                # csv.DictReader позволяет читать строки как словари, где ключи - это заголовки
                 reader = csv.DictReader(f)
                 actual_headers = reader.fieldnames
                 expected_headers_set = set(REQUIRED_HEADERS)
@@ -130,7 +126,6 @@ def main():
                     )
                     sys.exit(1)
                 for row in reader:
-                    # Каждая строка - это словарь {'country': 'USA', 'year': 1992}
                     all_data.append(_process_row_types(row))
         except FileNotFoundError:
             print(
@@ -141,10 +136,6 @@ def main():
         except Exception as e:
             print("Ошибка чтения файла {file_path}: {e}", file=sys.stderr)
             sys.exit(1)
-
-    print(
-        f"Успешно загруженны {len(all_data)} данных из {len(args.files)} файлов."
-    )
 
     # Считаем ВВП.
     if args.report == "average-gdp":
