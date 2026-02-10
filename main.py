@@ -134,7 +134,7 @@ def main():
             )
             sys.exit(1)
         except Exception as e:
-            print("Ошибка чтения файла {file_path}: {e}", file=sys.stderr)
+            print(f"Ошибка чтения файла {file_path}: {e}", file=sys.stderr)
             sys.exit(1)
 
     # Считаем ВВП.

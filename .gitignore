@@ -12,3 +12,6 @@ __pycache__/
 # Логи и БД
 *.log
 *.sqlite3
+
+# Моя папка с тестовыми csv
+lesson/
